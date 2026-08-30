@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b5d3b">
+<link rel="manifest" href="manifest.json">
+<title>Hisab Tasdeek</title>
+<script src="xlsx.full.min.js"></script>
+<script>
+if(typeof XLSX==="undefined"){
+  const s=document.createElement("script");
+  s.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
+  document.head.appendChild(s);
+}
+</script>
+<style>
+:root{--bg:#f5f7f5;--card:#fff;--green:#0b5d3b;--green2:#138a5a;--text:#152019;--muted:#6e7b73;--line:#dce5df}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text)}
+.wrap{max-width:900px;margin:auto;padding:18px}.head{background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;padding:22px;border-radius:20px;margin-bottom:16px}
+.head h1{margin:0 0 6px;font-size:28px}.head p{margin:0;opacity:.9}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin:12px 0;box-shadow:0 6px 18px rgba(0,0,0,.04)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.filebox{border:1px dashed #9db5a7;border-radius:14px;padding:12px}.loanrow{display:grid;grid-template-columns:150px 1fr auto;gap:8px;align-items:center;margin:8px 0}
+label{font-weight:700;display:block;margin-bottom:8px}input,select{border:1px solid #b9c9bf;border-radius:12px;padding:11px;font-size:15px}
+input[type=file]{width:100%;padding:8px}.searchrow{display:flex;gap:8px;flex-wrap:wrap}.searchrow input{flex:1;min-width:240px;padding:14px;font-size:17px}
+button{border:0;border-radius:14px;padding:12px 15px;font-weight:700;font-size:14px;cursor:pointer}.primary{background:var(--green);color:#fff}.ghost{background:#eef4f0;color:var(--green)}.danger{background:#fff0f0;color:#9b2323}
+.status,.small{font-size:12px;color:var(--muted)}.result{border:1px solid var(--line);border-radius:16px;padding:14px;margin-top:10px}.result h3{margin:0 0 6px}
+.balancegrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:12px}.balance{background:#f3f8f5;border-radius:12px;padding:12px}.balance b{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}.amt{font-size:19px;font-weight:800}
+.infogrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px}.info{background:#fafcfa;border:1px solid #e5ebe7;border-radius:10px;padding:9px}.info b{font-size:11px;color:var(--muted);display:block}
+.options button{width:100%;text-align:left;background:#fff;border:1px solid var(--line);margin:5px 0}.hidden{display:none}.radios{display:flex;gap:18px;align-items:center;flex-wrap:wrap}.radios label{font-weight:600;margin:0}
+@media(max-width:650px){.grid2,.grid3,.infogrid{grid-template-columns:1fr}.loanrow{grid-template-columns:1fr}.searchrow input{width:100%;flex-basis:100%}}
+
+.mainlayout{display:grid;grid-template-columns:minmax(360px,0.95fr) minmax(430px,1.25fr);gap:14px;align-items:start}
+.leftcol,.rightcol{min-width:0}
+.stickySearch{position:sticky;top:12px}
+.searchmodes{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.searchmodes label{font-weight:600;margin:0;display:flex;gap:5px;align-items:center}
+@media(max-width:900px){.mainlayout{grid-template-columns:1fr}.stickySearch{position:static}}
+
+/* ===== V8 RESPONSIVE LAYOUT FIX ===== */
+.wrap{max-width:1180px}
+.mainlayout{
+  display:grid;
+  grid-template-columns:minmax(0,1.05fr) minmax(420px,.95fr);
+  gap:18px;
+  align-items:start;
+}
+.leftcol,.rightcol{min-width:0}
+.rightcol .card{overflow:hidden}
+.stickySearch{position:sticky;top:12px;z-index:2}
+
+.searchrow{
+  display:grid !important;
+  grid-template-columns:1fr 1fr;
+  gap:10px !important;
+  align-items:center;
+}
+.searchrow #q{
+  grid-column:1 / -1;
+  width:100%;
+  min-width:0 !important;
+  padding:14px 15px;
+}
+.searchrow button{
+  width:100%;
+  min-width:0;
+  white-space:nowrap;
+}
+#searchBtn{grid-column:1}
+#voiceBtn{grid-column:2}
+#nextBtn{grid-column:1 / -1}
+
+.loanrow{
+  display:grid !important;
+  grid-template-columns:minmax(120px,170px) minmax(0,1fr) auto;
+  gap:8px !important;
+  align-items:center;
+}
+.loanrow input{min-width:0;width:100%}
+
+.grid3{
+  display:grid !important;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px !important;
+}
+.grid3 select{width:100%;min-width:0}
+
+.balancegrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.infogrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+
+@media(max-width:980px){
+  .mainlayout{grid-template-columns:1fr}
+  .stickySearch{position:static}
+}
+@media(max-width:620px){
+  .wrap{padding:10px}
+  .head{padding:17px;border-radius:16px}
+  .head h1{font-size:23px}
+  .loanrow{grid-template-columns:1fr}
+  .grid3{grid-template-columns:1fr}
+  .searchrow{grid-template-columns:1fr 1fr}
+  .balancegrid,.infogrid{grid-template-columns:1fr}
+}
+
+
+/* ===== V9 LICENSE ===== */
+#licenseGate{
+  position:fixed;inset:0;z-index:99999;background:#eef3ef;
+  display:flex;align-items:center;justify-content:center;padding:18px;
+}
+.licenseBox{
+  width:min(460px,100%);background:#fff;border:1px solid #dce5df;
+  border-radius:22px;padding:24px;box-shadow:0 20px 55px rgba(0,0,0,.15)
+}
+.licenseBox h2{margin:0 0 6px;color:#0b5d3b}
+.licenseBox p{color:#6e7b73;margin:0 0 18px}
+.licenseBox input{width:100%;margin:6px 0 12px;padding:13px}
+.licenseBox button{width:100%;background:#0b5d3b;color:#fff}
+.licenseError{color:#a62323;font-size:13px;font-weight:700;margin-top:10px}
+.licenseOk{color:#0b5d3b;font-size:13px;font-weight:700;margin-top:10px}
+.licenseMeta{font-size:12px;color:#6e7b73;margin-top:12px}
+
+</style>
+</head>
+
+<body>
+
+<div id="licenseGate">
+  <div class="licenseBox">
+    <h2>Hisab Tasdeek</h2>
+    <p id="licenseTitle">Activation Required</p>
+
+    <label>Serial Key</label>
+    <input id="licenseSerial" type="password" autocomplete="off" placeholder="Enter serial key">
+
+    <label>Valid Till</label>
+    <input id="licenseExpiry" type="date">
+
+    <button id="activateBtn">ACTIVATE</button>
+    <div id="licenseMessage"></div>
+    <div class="licenseMeta">Serial is hidden while typing. The app stores activation data locally.<br><b>Contact for support:</b> dhaliwalballi18@gmail.com</div>
+  </div>
+</div>
+
+<div class="wrap">
+<div class="head"><h1>Hisab Tasdeek</h1><p>Multiple loan reports • Smart member matching • Voice search <b>• V10</b> <span id="licenseBadge"></span></p><div style="margin-top:8px;font-size:13px;opacity:.92">Contact: dhaliwalballi18@gmail.com</div></div>
+
+<div class="mainlayout">
+  <div class="leftcol">
+    <div class="card">
+      <h3 style="margin-top:0">Loan Files</h3>
+      <div id="loanFiles"></div>
+      <button class="ghost" id="addLoanBtn">＋ Add Loan</button>
+      <div class="status" style="margin-top:8px">TXT, CSV, XLSX and XLS supported. ST and EC are default; add MT Loan, Non-Agri or any other report.</div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">Field Mapping</h3>
+      <div class="grid3">
+        <div><label>Name field</label><select id="nameField">
+          <option value="auto">Auto Detect</option><option selected>NAME</option><option>MEMBER NAME</option><option>NAME OF CLIENT</option><option>MEMBER</option><option>CLIENT NAME</option>
+        </select></div>
+        <div><label>Balance field</label><select id="amountField">
+          <option value="auto">Auto Detect</option><option selected>BALANCE</option><option>CLOSING AMOUNT</option><option>CLOSING BALANCE</option><option>OUTSTANDING</option><option>AMOUNT</option>
+        </select></div>
+        <div><label>Share field</label><select id="shareField">
+          <option value="auto">Auto Detect</option><option selected>SHARE VALUE</option><option>SHARE MONEY</option><option>SHARE</option><option>SHARE AMOUNT</option><option>SHARE BALANCE</option>
+        </select></div>
+      </div>
+      <div style="margin-top:10px"><button class="ghost" id="reloadBtn">↻ Reload / Auto Detect</button> <span id="mappingStatus" class="status"></span></div>
+    </div>
+
+    <div class="card">
+      <div class="radios">
+        <b>Display:</b>
+        <label><input type="radio" name="infoMode" value="basic" checked> Loan Info</label>
+        <label><input type="radio" name="infoMode" value="full"> Full Info</label>
+      </div>
+
+      <div class="searchmodes">
+        <b>Search Mode:</b>
+        <label><input type="radio" name="searchMode" value="default" checked> Default</label>
+        <label><input type="radio" name="searchMode" value="first"> First Name</label>
+        <label><input type="radio" name="searchMode" value="last"> Last Name</label>
+      </div>
+      <div class="status" style="margin-top:8px">
+        First Name = member name before S/O-W/O. Last Name = father/husband name after S/O-W/O.
+      </div>
+    </div>
+  </div>
+
+  <div class="rightcol">
+    <div class="card stickySearch">
+      <label>Search member</label>
+      <div class="searchrow">
+        <input id="q" placeholder="Baljeet Singh / Ram Singh / Next Gurjiwan Singh">
+        <button class="primary" id="searchBtn">Search</button>
+        <button class="ghost" id="voiceBtn">🎙️ Start Voice</button>
+        <button class="ghost" id="nextBtn">Next</button>
+      </div>
+      <div id="voiceStatus" class="status">Voice: Off</div>
+    </div>
+
+    <div id="results" class="card hidden"></div>
+  </div>
+</div>
+</div>
+
+<div style="text-align:center;color:#6e7b73;font-size:12px;padding:10px 0 18px">
+  Hisab Tasdeek • Contact: dhaliwalballi18@gmail.com
+</div>
+
+<script>
+
+const MDC_MASTER_HASH = "e25e1db54c95b6f30a1614a507eddc6d1f7edf210feabe7ef69abb66c872366e";
+const MDC_LICENSE_STORE = "mdc_license_v9";
+const MDC_LICENSE_SALT = "MDC-BALANCE-V9-LOCAL";
+
+async function sha256Hex(text){
+  const bytes=new TextEncoder().encode(text);
+  const hash=await crypto.subtle.digest("SHA-256",bytes);
+  return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+
+function todayISO(){
+  const d=new Date();
+  const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,"0"),day=String(d.getDate()).padStart(2,"0");
+  return `${y}-${m}-${day}`;
+}
+
+async function makeLicenseProof(expiry){
+  return await sha256Hex(MDC_MASTER_HASH+"|"+expiry+"|"+MDC_LICENSE_SALT);
+}
+
+async function getValidLicense(){
+  try{
+    const raw=localStorage.getItem(MDC_LICENSE_STORE);
+    if(!raw)return null;
+    const lic=JSON.parse(raw);
+    if(!lic.expiry||!lic.proof)return null;
+    const proof=await makeLicenseProof(lic.expiry);
+    if(proof!==lic.proof)return null;
+    if(todayISO()>lic.expiry)return {expired:true,expiry:lic.expiry};
+    return {active:true,expiry:lic.expiry};
+  }catch(e){return null}
+}
+
+function showLicenseGate(title,msg="",cls=""){
+  document.getElementById("licenseGate").style.display="flex";
+  document.getElementById("licenseTitle").textContent=title;
+  const m=document.getElementById("licenseMessage");
+  m.textContent=msg;m.className=cls;
+}
+
+function hideLicenseGate(expiry){
+  document.getElementById("licenseGate").style.display="none";
+  const b=document.getElementById("licenseBadge");
+  if(b)b.textContent=" • Active till "+expiry;
+}
+
+async function bootLicense(){
+  const lic=await getValidLicense();
+  if(lic?.active){hideLicenseGate(lic.expiry);return}
+  if(lic?.expired){
+    showLicenseGate("License Expired","Expired on "+lic.expiry+". Enter serial and a new expiry date to renew.","licenseError");
+  }else{
+    showLicenseGate("Activation Required");
+  }
+}
+
+document.getElementById("activateBtn").addEventListener("click",async()=>{
+  const serial=document.getElementById("licenseSerial").value.trim();
+  const expiry=document.getElementById("licenseExpiry").value;
+  const msg=document.getElementById("licenseMessage");
+  msg.textContent="";msg.className="";
+
+  if(!serial||!expiry){
+    msg.textContent="Enter serial key and Valid Till date.";
+    msg.className="licenseError";return;
+  }
+  if(expiry<todayISO()){
+    msg.textContent="Valid Till date cannot be in the past.";
+    msg.className="licenseError";return;
+  }
+
+  const enteredHash=await sha256Hex(serial);
+  if(enteredHash!==MDC_MASTER_HASH){
+    msg.textContent="Invalid serial key.";
+    msg.className="licenseError";
+    document.getElementById("licenseSerial").value="";
+    return;
+  }
+
+  const proof=await makeLicenseProof(expiry);
+  localStorage.setItem(MDC_LICENSE_STORE,JSON.stringify({expiry,proof,activatedAt:new Date().toISOString()}));
+  document.getElementById("licenseSerial").value="";
+  msg.textContent="Activated successfully.";
+  msg.className="licenseOk";
+  setTimeout(()=>hideLicenseGate(expiry),450);
+});
+
+bootLicense();
+
+const loanStore = new Map();
+let currentOptions=[], selected=null, loanSeq=0;
+const nameAliases=["NAME","MEMBER NAME","NAME OF CLIENT","CLIENT NAME","MEMBER","CUSTOMER NAME","PARTY NAME"];
+const balanceAliases=["BALANCE","CLOSING AMOUNT","CLOSING BALANCE","OUTSTANDING","AMOUNT","NET BALANCE","CLOSING BAL"];
+const shareAliases=["SHARE VALUE","SHARE MONEY","SHARE AMOUNT","SHARE BALANCE","SHARE"];
+const infoAliases={
+  aadhaar:["AADHAR NO","AADHAAR NO","AADHAR","AADHAAR"],
+  mobile:["MOBILE NO","MOBILE","PHONE NO","PHONE","CONTACT NO"],
+  gender:["GENDER","SEX"],
+  dob:["CUST DOB","DOB","DATE OF BIRTH","BIRTH DATE"]
+};
+
+function clean(s){return (s||"").toUpperCase().replace(/[^A-Z0-9 ]+/g," ").replace(/\s+/g," ").trim()}
+function num(s){let n=parseFloat(String(s??"").replace(/,/g,"").trim());return isNaN(n)?0:n}
+function money(n){return "₹"+Math.abs(Number(n||0)).toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function splitName(raw){let u=clean(raw),m=u.match(/^(.*?)\s+(S O|W O|D O|C O|O)\s+(.*)$/);return m?{person:m[1].trim(),relation:m[3].trim(),full:u}:{person:u,relation:"",full:u}}
+function levenshtein(a,b){a=clean(a);b=clean(b);let m=a.length,n=b.length,d=Array.from({length:m+1},()=>Array(n+1).fill(0));for(let i=0;i<=m;i++)d[i][0]=i;for(let j=0;j<=n;j++)d[0][j]=j;for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return d[m][n]}
+function sim(a,b){a=clean(a);b=clean(b);if(!a||!b)return 0;if(a===b)return 1;return 1-levenshtein(a,b)/Math.max(a.length,b.length)}
+function detect(headers,pref,aliases){let p=clean(pref);if(p&&p!=="AUTO"){let i=headers.findIndex(x=>clean(x)===p);if(i>=0)return i}for(let a of aliases){let i=headers.findIndex(x=>clean(x)===clean(a));if(i>=0)return i}for(let a of aliases){let i=headers.findIndex(x=>clean(x).includes(clean(a)));if(i>=0)return i}return -1}
+
+function addLoanRow(name, removable=true){
+  const id="loan"+(++loanSeq);
+  const row=document.createElement("div");row.className="loanrow";row.dataset.id=id;
+  row.innerHTML=`<input class="loanName" value="${name}" placeholder="Loan name">
+    <input class="loanFile" type="file" accept=".txt,.csv,.xlsx,.xls,text/plain,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel">
+    ${removable?'<button class="danger removeLoan">Remove</button>':'<span></span>'}
+    <div class="status" style="grid-column:1/-1">No file loaded</div>`;
+  document.getElementById("loanFiles").appendChild(row);
+  row.querySelector(".loanFile").addEventListener("change",()=>loadLoanRow(row));
+  if(removable) row.querySelector(".removeLoan").onclick=()=>{loanStore.delete(id);row.remove()};
+}
+addLoanRow("ST Loan",false);addLoanRow("EC Loan",false);
+document.getElementById("addLoanBtn").onclick=()=>addLoanRow("MT Loan",true);
+
+async function fileToTable(file){
+  const ext=file.name.split(".").pop().toLowerCase();
+  if(ext==="txt"||ext==="csv"){
+    const txt=await file.text();
+    return textToTable(txt);
+  }
+  if(!window.XLSX) throw new Error("Excel reader not loaded. Internet may be needed the first time.");
+  const buf=await file.arrayBuffer();
+  const wb=XLSX.read(buf,{type:"array",cellDates:false});
+  const ws=wb.Sheets[wb.SheetNames[0]];
+  const arr=XLSX.utils.sheet_to_json(ws,{header:1,defval:"",raw:false});
+  return arr.filter(r=>r.some(v=>String(v).trim()!==""));
+}
+function textToTable(txt){
+  const lines=txt.split(/\r?\n/).filter(x=>x.trim());
+  let delim="|";
+  if(!lines.some(x=>x.includes("|")) && lines.some(x=>x.includes(","))) delim=",";
+  return lines.map(x=>x.split(delim).map(v=>v.trim()));
+}
+
+function tableToRows(table){
+  let headerIndex=-1,headers=[];
+  for(let i=0;i<Math.min(table.length,40);i++){
+    let joined=table[i].join(" ").toUpperCase();
+    if((/NAME|MEMBER|CLIENT|PARTY/.test(joined))&&(/BALANCE|AMOUNT|OUTSTANDING/.test(joined))){headerIndex=i;headers=table[i];break}
+  }
+  if(headerIndex<0){headerIndex=0;headers=table[0]||[]}
+  const np=document.getElementById("nameField").value, ap=document.getElementById("amountField").value, sp=document.getElementById("shareField").value;
+  let ni=detect(headers,np,nameAliases), bi=detect(headers,ap,balanceAliases), si=detect(headers,sp,shareAliases);
+  if(ni<0)ni=3;if(bi<0)bi=4;if(si<0)si=5;
+  const ai=detect(headers,"auto",infoAliases.aadhaar), mi=detect(headers,"auto",infoAliases.mobile), gi=detect(headers,"auto",infoAliases.gender), di=detect(headers,"auto",infoAliases.dob);
+  const custi=detect(headers,"auto",["CUSTOMER ID","CUST ID","CUSTOMERID"]);
+  let rows=[];
+  for(let i=headerIndex+1;i<table.length;i++){
+    let p=table[i]; if(!p||p.length<=Math.max(ni,bi))continue;
+    let raw=String(p[ni]??"").trim(); if(!raw||/NAME|MEMBER NAME|NAME OF CLIENT/i.test(raw))continue;
+    let x=splitName(raw);
+    rows.push({rawName:raw,person:x.person,relation:x.relation,full:x.full,balance:num(p[bi]),shareValue:num(p[si]),
+      customerId:custi>=0?String(p[custi]??""):"",
+      aadhaar:ai>=0?String(p[ai]??""):"",mobile:mi>=0?String(p[mi]??""):"",
+      gender:gi>=0?String(p[gi]??""):"",dob:di>=0?String(p[di]??""):""});
+  }
+  document.getElementById("mappingStatus").textContent=`Detected: ${headers[ni]||"Name"} + ${headers[bi]||"Balance"} + ${headers[si]||"Share"}`;
+  return rows;
+}
+async function loadLoanRow(row){
+  const file=row.querySelector(".loanFile").files[0];if(!file)return;
+  const id=row.dataset.id,name=row.querySelector(".loanName").value.trim()||"Loan";
+  try{
+    const table=await fileToTable(file), rows=tableToRows(table);
+    loanStore.set(id,{name,file,rows});
+    row.querySelector(".status").textContent=`${file.name} • ${rows.length} members loaded`;
+  }catch(e){row.querySelector(".status").textContent="Error: "+e.message}
+}
+document.getElementById("reloadBtn").onclick=async()=>{for(const row of document.querySelectorAll(".loanrow"))if(row.querySelector(".loanFile").files[0])await loadLoanRow(row)};
+
+function scoreRow(r,q){
+  q=clean(q); if(!q)return 0;
+  const mode=document.querySelector('input[name="searchMode"]:checked')?.value||"default";
+
+  // STRICT mode selection:
+  // first = member name only (before S/O, W/O etc.)
+  // last  = father/husband relation only (after S/O, W/O etc.)
+  const target = mode==="first" ? clean(r.person) : mode==="last" ? clean(r.relation) : clean(r.full);
+  if(!target) return 0;
+
+  const qt=q.split(" ").filter(Boolean);
+  const tt=target.split(" ").filter(Boolean);
+
+  // In First/Last mode require meaningful match against that selected side only.
+  if(mode!=="default"){
+    const exact = target===q;
+    const contains = target.includes(q) || q.includes(target);
+    const tokenHits = qt.filter(t=>tt.some(x=>x===t || sim(t,x)>=0.78)).length;
+    const coverage = qt.length ? tokenHits/qt.length : 0;
+    const wholeSim = sim(q,target);
+
+    if(!(exact || contains || coverage>=0.75 || wholeSim>=0.78)) return 0;
+
+    let s=0;
+    if(exact)s+=220;
+    if(contains)s+=150;
+    s+=coverage*100;
+    s+=wholeSim*80;
+    return s;
+  }
+
+  // Default mode searches both member and relation as before.
+  let s=0;
+  if(r.full.includes(q))s+=120;
+  if(r.person.includes(q))s+=105;
+  if(r.relation.includes(q))s+=90;
+  for(const t of qt){
+    let best=Math.max(0,...r.full.split(" ").map(x=>sim(t,x)));
+    if(best>=0.72)s+=30*best;
+  }
+  s+=45*sim(q,r.full);
+  return s;
+}
+function counterpart(base, rows){
+  if(base.customerId){let e=rows.find(x=>x.customerId&&x.customerId===base.customerId);if(e)return e}
+  let a=rows.map(x=>({x,s:.7*sim(base.person,x.person)+.3*sim(base.relation,x.relation)})).sort((a,b)=>b.s-a.s);
+  return a[0]&&a[0].s>.74?a[0].x:null
+}
+function buildCombined(seed, seedLoanId){
+  let obj={};for(const [id,l] of loanStore)obj[id]=id===seedLoanId?seed:counterpart(seed,l.rows);return obj
+}
+function searchMembers(q){
+  let ranked=[];for(const [id,l] of loanStore)for(const r of l.rows){let s=scoreRow(r,q);if(s>35)ranked.push({id,r,s})}
+  ranked.sort((a,b)=>b.s-a.s);let out=[],keys=new Set();
+  for(const z of ranked){let key=z.r.customerId||clean(z.r.full);if(keys.has(key))continue;keys.add(key);out.push(buildCombined(z.r,z.id));if(out.length>=8)break}
+  return out
+}
+function firstMember(c){for(const [id,l] of loanStore)if(c[id])return c[id];return null}
+function renderOptions(opts){
+  currentOptions=opts;selected=null;let box=document.getElementById("results");box.classList.remove("hidden");
+  if(!opts.length){box.innerHTML="<b>No close member found.</b>";return}
+  if(opts.length===1){selectOption(0);return}
+  box.innerHTML=`<h3>${opts.length} possible members found</h3><div class="options">`+opts.map((c,i)=>{
+    let r=firstMember(c),parts=[];for(const [id,l] of loanStore)parts.push(`${l.name}: ${money(c[id]?.balance||0)}`);
+    return `<button onclick="selectOption(${i})"><b>Option ${i+1}: ${r.rawName}</b><br><span class="small">${parts.join(" • ")}</span></button>`
+  }).join("")+"</div>"
+}
+function bestInfo(c,field){for(const [id,l] of loanStore){let v=c[id]?.[field];if(v&&v!=="0")return v}return ""}
+function selectOption(i){
+  let c=currentOptions[i];if(!c)return;selected=c;let r=firstMember(c),cards="",total=0,share=null;
+  for(const [id,l] of loanStore){let amt=c[id]?.balance||0;total+=amt;if(share===null&&c[id])share=c[id].shareValue;cards+=`<div class="balance"><b>${l.name.toUpperCase()}</b><div class="amt">${money(amt)}</div></div>`}
+  cards+=`<div class="balance"><b>SHARE VALUE</b><div class="amt">${money(share||0)}</div></div><div class="balance"><b>TOTAL LOAN</b><div class="amt">${money(total)}</div></div>`;
+  let full=document.querySelector('input[name="infoMode"]:checked').value==="full",info="";
+  if(full){
+    const vals=[["AADHAAR NO",bestInfo(c,"aadhaar")],["MOBILE / PHONE",bestInfo(c,"mobile")],["GENDER",bestInfo(c,"gender")],["DOB",bestInfo(c,"dob")]];
+    info='<div class="infogrid">'+vals.filter(x=>x[1]).map(x=>`<div class="info"><b>${x[0]}</b>${x[1]}</div>`).join("")+"</div>";
+  }
+  let box=document.getElementById("results");box.classList.remove("hidden");
+  box.innerHTML=`<div class="result"><h3>${r.rawName}</h3><div class="balancegrid">${cards}</div>${info}</div>`
+}
+function handleCommand(raw){
+  let q=clean(raw);if(!q)return;
+  if(q.startsWith("SEARCH ")){forceNewSearch(q.slice(7));return;}
+  let om=q.match(/^OPTION\s*(\d+)$/);if(om&&currentOptions.length){selectOption(+om[1]-1);return}
+  if(/^(NEXT|DONE|OK NEXT|AGLA)$/.test(q)){currentOptions=[];selected=null;document.getElementById("results").classList.add("hidden");document.getElementById("q").value="";return}
+  q=q.replace(/^(NEXT|DONE|OK NEXT|AGLA)\s+/,"");
+  if(currentOptions.length){
+    let am=q.match(/\b(\d[\d,]*)\b/);if(am){let target=+am[1].replace(/,/g,""),best=[];
+      currentOptions.forEach((c,i)=>{let d=Infinity;for(const [id,l] of loanStore)d=Math.min(d,Math.abs(Math.abs(c[id]?.balance||0)-target));best.push({i,d})});best.sort((a,b)=>a.d-b.d);
+      if(best[0]&&best[0].d<=Math.max(500,target*.08)){selectOption(best[0].i);return}}
+    let rr=currentOptions.map((c,i)=>({i,s:scoreRow(firstMember(c),q)})).sort((a,b)=>b.s-a.s);if(rr[0]&&rr[0].s>70){selectOption(rr[0].i);return}
+  }
+  renderOptions(searchMembers(q))
+}
+function forceNewSearch(raw){
+  let q=clean(raw);
+  if(!q)return;
+  // Search button / Enter always means a fresh member search.
+  currentOptions=[]; selected=null;
+  q=q.replace(/^(NEXT|DONE|OK NEXT|AGLA)\s+/,"");
+  renderOptions(searchMembers(q));
+}
+document.getElementById("searchBtn").onclick=()=>forceNewSearch(document.getElementById("q").value);
+document.getElementById("q").addEventListener("keydown",e=>{if(e.key==="Enter")forceNewSearch(e.target.value)});
+document.getElementById("nextBtn").onclick=()=>handleCommand("NEXT");
+
+let voiceActive=false,rec=null;
+function voiceUI(){document.getElementById("voiceBtn").textContent=voiceActive?"⏹️ Stop Voice":"🎙️ Start Voice";document.getElementById("voiceStatus").textContent=voiceActive?"Voice: Listening…":"Voice: Off"}
+function startVoice(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){alert("Voice not supported in this browser");voiceActive=false;voiceUI();return}
+ rec=new SR();rec.lang="en-IN";rec.interimResults=false;rec.maxAlternatives=1;rec.continuous=true;
+ rec.onresult=e=>{let t=e.results[e.results.length-1][0].transcript;document.getElementById("q").value=t;document.getElementById("voiceStatus").textContent='Heard: "'+t+'"';handleCommand(t)};
+ rec.onend=()=>{rec=null;if(voiceActive)setTimeout(startVoice,900)};rec.onerror=e=>{};try{rec.start()}catch(e){rec=null}}
+document.getElementById("voiceBtn").onclick=()=>{voiceActive=!voiceActive;voiceUI();if(voiceActive)startVoice();else if(rec){try{rec.stop()}catch(e){}rec=null}};
+if("serviceWorker"in navigator){
+      navigator.serviceWorker.register("sw.js?v=9").then(r=>r.update()).catch(()=>{});
+    }
+</script>
+</body>
+</html>
