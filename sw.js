@@ -1,4 +1,4 @@
-const C='hisab-tasdeek-v1';
+const C='hisab-tasdeek-v11';
 const CORE=['./','index.html','manifest.json','xlsx.full.min.js'];
 self.addEventListener('install',e=>{
   self.skipWaiting();

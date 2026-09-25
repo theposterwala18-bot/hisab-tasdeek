@@ -17,17 +17,17 @@ if(typeof XLSX==="undefined"){
 <style>
 :root{--bg:#f5f7f5;--card:#fff;--green:#0b5d3b;--green2:#138a5a;--text:#152019;--muted:#6e7b73;--line:#dce5df}
 *{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text)}
-.wrap{max-width:900px;margin:auto;padding:18px}.head{background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;padding:22px;border-radius:20px;margin-bottom:16px}
-.head h1{margin:0 0 6px;font-size:28px}.head p{margin:0;opacity:.9}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin:12px 0;box-shadow:0 6px 18px rgba(0,0,0,.04)}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.wrap{max-width:900px;margin:auto;padding:18px}.head{background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;padding:22px;border-radius:8px;margin-bottom:16px}
+.head h1{margin:0 0 6px;font-size:28px}.head p{margin:0;opacity:.9}.card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px;margin:12px 0;box-shadow:0 6px 18px rgba(0,0,0,.04)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.mappinggrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .filebox{border:1px dashed #9db5a7;border-radius:14px;padding:12px}.loanrow{display:grid;grid-template-columns:150px 1fr auto;gap:8px;align-items:center;margin:8px 0}
 label{font-weight:700;display:block;margin-bottom:8px}input,select{border:1px solid #b9c9bf;border-radius:12px;padding:11px;font-size:15px}
 input[type=file]{width:100%;padding:8px}.searchrow{display:flex;gap:8px;flex-wrap:wrap}.searchrow input{flex:1;min-width:240px;padding:14px;font-size:17px}
 button{border:0;border-radius:14px;padding:12px 15px;font-weight:700;font-size:14px;cursor:pointer}.primary{background:var(--green);color:#fff}.ghost{background:#eef4f0;color:var(--green)}.danger{background:#fff0f0;color:#9b2323}
 .status,.small{font-size:12px;color:var(--muted)}.result{border:1px solid var(--line);border-radius:16px;padding:14px;margin-top:10px}.result h3{margin:0 0 6px}
-.balancegrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:12px}.balance{background:#f3f8f5;border-radius:12px;padding:12px}.balance b{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}.amt{font-size:19px;font-weight:800}
-.infogrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px}.info{background:#fafcfa;border:1px solid #e5ebe7;border-radius:10px;padding:9px}.info b{font-size:11px;color:var(--muted);display:block}
-.options button{width:100%;text-align:left;background:#fff;border:1px solid var(--line);margin:5px 0}.hidden{display:none}.radios{display:flex;gap:18px;align-items:center;flex-wrap:wrap}.radios label{font-weight:600;margin:0}
+.balancegrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:12px}.balance{background:#f3f8f5;border-radius:6px;padding:12px}.balance b{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}.amt{font-size:19px;font-weight:800}
+.infogrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px}.info{background:#fafcfa;border:1px solid #e5ebe7;border-radius:6px;padding:9px}.info b{font-size:11px;color:var(--muted);display:block}
+.options button{width:100%;text-align:left;background:#fff;border:1px solid var(--line);margin:5px 0}.result{border:0;border-radius:0;padding:0;margin:0}.hidden{display:none}.radios{display:flex;gap:18px;align-items:center;flex-wrap:wrap}.radios label{font-weight:600;margin:0}
 @media(max-width:650px){.grid2,.grid3,.infogrid{grid-template-columns:1fr}.loanrow{grid-template-columns:1fr}.searchrow input{width:100%;flex-basis:100%}}
 
 .mainlayout{display:grid;grid-template-columns:minmax(360px,0.95fr) minmax(430px,1.25fr);gap:14px;align-items:start}
@@ -35,6 +35,12 @@ button{border:0;border-radius:14px;padding:12px 15px;font-weight:700;font-size:1
 .stickySearch{position:sticky;top:12px}
 .searchmodes{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-top:10px}
 .searchmodes label{font-weight:600;margin:0;display:flex;gap:5px;align-items:center}
+.searchtypes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-bottom:10px}
+.searchtypes label{position:relative;margin:0}
+.searchtypes input{position:absolute;opacity:0;pointer-events:none}
+.searchtypes span{display:block;border:1px solid var(--line);border-radius:8px;padding:10px 8px;text-align:center;font-weight:700;color:var(--green);background:#eef4f0;cursor:pointer}
+.searchtypes input:checked+span{background:var(--green);border-color:var(--green);color:#fff}
+.accountline{font-size:13px;color:var(--muted);margin-top:4px}
 @media(max-width:900px){.mainlayout{grid-template-columns:1fr}.stickySearch{position:static}}
 
 /* ===== V8 RESPONSIVE LAYOUT FIX ===== */
@@ -84,6 +90,7 @@ button{border:0;border-radius:14px;padding:12px 15px;font-weight:700;font-size:1
   gap:10px !important;
 }
 .grid3 select{width:100%;min-width:0}
+.mappinggrid select{width:100%;min-width:0}
 
 .balancegrid{grid-template-columns:repeat(2,minmax(0,1fr))}
 .infogrid{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -98,7 +105,9 @@ button{border:0;border-radius:14px;padding:12px 15px;font-weight:700;font-size:1
   .head h1{font-size:23px}
   .loanrow{grid-template-columns:1fr}
   .grid3{grid-template-columns:1fr}
+  .mappinggrid{grid-template-columns:1fr}
   .searchrow{grid-template-columns:1fr 1fr}
+  .searchtypes{grid-template-columns:1fr}
   .balancegrid,.infogrid{grid-template-columns:1fr}
 }
 
@@ -143,7 +152,7 @@ button{border:0;border-radius:14px;padding:12px 15px;font-weight:700;font-size:1
 </div>
 
 <div class="wrap">
-<div class="head"><h1>Hisab Tasdeek</h1><p>Multiple loan reports • Smart member matching • Voice search <b>• V10</b> <span id="licenseBadge"></span></p><div style="margin-top:8px;font-size:13px;opacity:.92">Contact: dhaliwalballi18@gmail.com</div></div>
+<div class="head"><h1>Hisab Tasdeek</h1><p>Multiple loan reports • Name, A/c and amount search • Voice search <b>• V11</b> <span id="licenseBadge"></span></p><div style="margin-top:8px;font-size:13px;opacity:.92">Contact: dhaliwalballi18@gmail.com</div></div>
 
 <div class="mainlayout">
   <div class="leftcol">
@@ -156,7 +165,7 @@ button{border:0;border-radius:14px;padding:12px 15px;font-weight:700;font-size:1
 
     <div class="card">
       <h3 style="margin-top:0">Field Mapping</h3>
-      <div class="grid3">
+      <div class="mappinggrid">
         <div><label>Name field</label><select id="nameField">
           <option value="auto">Auto Detect</option><option selected>NAME</option><option>MEMBER NAME</option><option>NAME OF CLIENT</option><option>MEMBER</option><option>CLIENT NAME</option>
         </select></div>
@@ -165,6 +174,9 @@ button{border:0;border-radius:14px;padding:12px 15px;font-weight:700;font-size:1
         </select></div>
         <div><label>Share field</label><select id="shareField">
           <option value="auto">Auto Detect</option><option selected>SHARE VALUE</option><option>SHARE MONEY</option><option>SHARE</option><option>SHARE AMOUNT</option><option>SHARE BALANCE</option>
+        </select></div>
+        <div><label>A/c field</label><select id="accountField">
+          <option value="auto">Auto Detect</option><option selected>ACCOUNT NO</option><option>ACCOUNT NUMBER</option><option>A/C NO</option><option>AC NO</option><option>LOAN A/C NO</option>
         </select></div>
       </div>
       <div style="margin-top:10px"><button class="ghost" id="reloadBtn">↻ Reload / Auto Detect</button> <span id="mappingStatus" class="status"></span></div>
@@ -178,12 +190,18 @@ button{border:0;border-radius:14px;padding:12px 15px;font-weight:700;font-size:1
       </div>
 
       <div class="searchmodes">
+        <b>Share Value:</b>
+        <label><input type="radio" name="shareMode" value="yes" checked> Yes</label>
+        <label><input type="radio" name="shareMode" value="no"> No</label>
+      </div>
+
+      <div class="searchmodes" id="nameSearchModes">
         <b>Search Mode:</b>
         <label><input type="radio" name="searchMode" value="default" checked> Default</label>
         <label><input type="radio" name="searchMode" value="first"> First Name</label>
         <label><input type="radio" name="searchMode" value="last"> Last Name</label>
       </div>
-      <div class="status" style="margin-top:8px">
+      <div class="status" id="nameSearchHelp" style="margin-top:8px">
         First Name = member name before S/O-W/O. Last Name = father/husband name after S/O-W/O.
       </div>
     </div>
@@ -191,7 +209,12 @@ button{border:0;border-radius:14px;padding:12px 15px;font-weight:700;font-size:1
 
   <div class="rightcol">
     <div class="card stickySearch">
-      <label>Search member</label>
+      <label>Search</label>
+      <div class="searchtypes">
+        <label><input type="radio" name="searchType" value="name" checked><span>Member Name</span></label>
+        <label><input type="radio" name="searchType" value="account"><span>A/c Number</span></label>
+        <label><input type="radio" name="searchType" value="amount"><span>Amount</span></label>
+      </div>
       <div class="searchrow">
         <input id="q" placeholder="Baljeet Singh / Ram Singh / Next Gurjiwan Singh">
         <button class="primary" id="searchBtn">Search</button>
@@ -306,6 +329,7 @@ let currentOptions=[], selected=null, loanSeq=0;
 const nameAliases=["NAME","MEMBER NAME","NAME OF CLIENT","CLIENT NAME","MEMBER","CUSTOMER NAME","PARTY NAME"];
 const balanceAliases=["BALANCE","CLOSING AMOUNT","CLOSING BALANCE","OUTSTANDING","AMOUNT","NET BALANCE","CLOSING BAL"];
 const shareAliases=["SHARE VALUE","SHARE MONEY","SHARE AMOUNT","SHARE BALANCE","SHARE"];
+const accountAliases=["ACCOUNT NO","ACCOUNT NUMBER","A/C NO","AC NO","A C NO","LOAN A/C NO","LOAN ACCOUNT NO","ACCOUNT"];
 const infoAliases={
   aadhaar:["AADHAR NO","AADHAAR NO","AADHAR","AADHAAR"],
   mobile:["MOBILE NO","MOBILE","PHONE NO","PHONE","CONTACT NO"],
@@ -314,7 +338,8 @@ const infoAliases={
 };
 
 function clean(s){return (s||"").toUpperCase().replace(/[^A-Z0-9 ]+/g," ").replace(/\s+/g," ").trim()}
-function num(s){let n=parseFloat(String(s??"").replace(/,/g,"").trim());return isNaN(n)?0:n}
+function num(s){let n=parseFloat(String(s??"").replace(/[^0-9.\-]/g,"").trim());return isNaN(n)?0:n}
+function accountKey(s){return String(s??"").replace(/[^A-Za-z0-9]/g,"").toUpperCase()}
 function money(n){return "₹"+Math.abs(Number(n||0)).toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2})}
 function splitName(raw){let u=clean(raw),m=u.match(/^(.*?)\s+(S O|W O|D O|C O|O)\s+(.*)$/);return m?{person:m[1].trim(),relation:m[3].trim(),full:u}:{person:u,relation:"",full:u}}
 function levenshtein(a,b){a=clean(a);b=clean(b);let m=a.length,n=b.length,d=Array.from({length:m+1},()=>Array(n+1).fill(0));for(let i=0;i<=m;i++)d[i][0]=i;for(let j=0;j<=n;j++)d[0][j]=j;for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return d[m][n]}
@@ -362,9 +387,10 @@ function tableToRows(table){
     if((/NAME|MEMBER|CLIENT|PARTY/.test(joined))&&(/BALANCE|AMOUNT|OUTSTANDING/.test(joined))){headerIndex=i;headers=table[i];break}
   }
   if(headerIndex<0){headerIndex=0;headers=table[0]||[]}
-  const np=document.getElementById("nameField").value, ap=document.getElementById("amountField").value, sp=document.getElementById("shareField").value;
-  let ni=detect(headers,np,nameAliases), bi=detect(headers,ap,balanceAliases), si=detect(headers,sp,shareAliases);
+  const np=document.getElementById("nameField").value, ap=document.getElementById("amountField").value, sp=document.getElementById("shareField").value, acp=document.getElementById("accountField").value;
+  let ni=detect(headers,np,nameAliases), bi=detect(headers,ap,balanceAliases), si=detect(headers,sp,shareAliases), aci=detect(headers,acp,accountAliases);
   if(ni<0)ni=3;if(bi<0)bi=4;if(si<0)si=5;
+  if(aci<0)aci=2;
   const ai=detect(headers,"auto",infoAliases.aadhaar), mi=detect(headers,"auto",infoAliases.mobile), gi=detect(headers,"auto",infoAliases.gender), di=detect(headers,"auto",infoAliases.dob);
   const custi=detect(headers,"auto",["CUSTOMER ID","CUST ID","CUSTOMERID"]);
   let rows=[];
@@ -372,12 +398,12 @@ function tableToRows(table){
     let p=table[i]; if(!p||p.length<=Math.max(ni,bi))continue;
     let raw=String(p[ni]??"").trim(); if(!raw||/NAME|MEMBER NAME|NAME OF CLIENT/i.test(raw))continue;
     let x=splitName(raw);
-    rows.push({rawName:raw,person:x.person,relation:x.relation,full:x.full,balance:num(p[bi]),shareValue:num(p[si]),
+    rows.push({rawName:raw,person:x.person,relation:x.relation,full:x.full,balance:num(p[bi]),shareValue:num(p[si]),accountNo:String(p[aci]??"").trim(),
       customerId:custi>=0?String(p[custi]??""):"",
       aadhaar:ai>=0?String(p[ai]??""):"",mobile:mi>=0?String(p[mi]??""):"",
       gender:gi>=0?String(p[gi]??""):"",dob:di>=0?String(p[di]??""):""});
   }
-  document.getElementById("mappingStatus").textContent=`Detected: ${headers[ni]||"Name"} + ${headers[bi]||"Balance"} + ${headers[si]||"Share"}`;
+  document.getElementById("mappingStatus").textContent=`Detected: ${headers[ni]||"Name"} + ${headers[bi]||"Balance"} + ${headers[si]||"Share"} + ${headers[aci]||"A/c"}`;
   return rows;
 }
 async function loadLoanRow(row){
@@ -442,11 +468,41 @@ function counterpart(base, rows){
 function buildCombined(seed, seedLoanId){
   let obj={};for(const [id,l] of loanStore)obj[id]=id===seedLoanId?seed:counterpart(seed,l.rows);return obj
 }
-function searchMembers(q){
+function searchMembersByName(q){
   let ranked=[];for(const [id,l] of loanStore)for(const r of l.rows){let s=scoreRow(r,q);if(s>35)ranked.push({id,r,s})}
   ranked.sort((a,b)=>b.s-a.s);let out=[],keys=new Set();
   for(const z of ranked){let key=z.r.customerId||clean(z.r.full);if(keys.has(key))continue;keys.add(key);out.push(buildCombined(z.r,z.id));if(out.length>=8)break}
   return out
+}
+function searchMembersByAccount(q){
+  const wanted=accountKey(q);if(!wanted)return [];
+  let ranked=[];
+  for(const [id,l] of loanStore)for(const r of l.rows){
+    const ac=accountKey(r.accountNo);if(!ac)continue;
+    let score=0;if(ac===wanted)score=300;else if(ac.endsWith(wanted))score=220;else if(ac.includes(wanted))score=160;
+    if(score)ranked.push({id,r,s:score-Math.abs(ac.length-wanted.length)});
+  }
+  ranked.sort((a,b)=>b.s-a.s);let out=[],keys=new Set();
+  for(const z of ranked){let key=z.r.customerId||accountKey(z.r.accountNo)||clean(z.r.full);if(keys.has(key))continue;keys.add(key);out.push(buildCombined(z.r,z.id));if(out.length>=20)break}
+  return out;
+}
+function searchMembersByAmount(q){
+  const target=Math.abs(num(q));if(!target&&String(q).trim()!=="0")return [];
+  let matches=[];
+  for(const [id,l] of loanStore)for(const r of l.rows){
+    const value=Math.abs(Number(r.balance||0)),difference=Math.abs(value-target);
+    if(difference<=0.01)matches.push({id,r,d:difference});
+  }
+  matches.sort((a,b)=>a.d-b.d);let out=[],keys=new Set();
+  for(const z of matches){let key=z.r.customerId||accountKey(z.r.accountNo)||clean(z.r.full);if(keys.has(key))continue;keys.add(key);out.push(buildCombined(z.r,z.id));if(out.length>=30)break}
+  return out;
+}
+function activeSearchType(){return document.querySelector('input[name="searchType"]:checked')?.value||"name"}
+function searchMembers(q){
+  const type=activeSearchType();
+  if(type==="account")return searchMembersByAccount(q);
+  if(type==="amount")return searchMembersByAmount(q);
+  return searchMembersByName(q);
 }
 function firstMember(c){for(const [id,l] of loanStore)if(c[id])return c[id];return null}
 function renderOptions(opts){
@@ -454,7 +510,7 @@ function renderOptions(opts){
   if(!opts.length){box.innerHTML="<b>No close member found.</b>";return}
   if(opts.length===1){selectOption(0);return}
   box.innerHTML=`<h3>${opts.length} possible members found</h3><div class="options">`+opts.map((c,i)=>{
-    let r=firstMember(c),parts=[];for(const [id,l] of loanStore)parts.push(`${l.name}: ${money(c[id]?.balance||0)}`);
+    let r=firstMember(c),parts=[];for(const [id,l] of loanStore)if(c[id])parts.push(`${l.name}: ${money(c[id].balance||0)}${c[id].accountNo?` • A/c ${c[id].accountNo}`:""}`);
     return `<button onclick="selectOption(${i})"><b>Option ${i+1}: ${r.rawName}</b><br><span class="small">${parts.join(" • ")}</span></button>`
   }).join("")+"</div>"
 }
@@ -462,14 +518,17 @@ function bestInfo(c,field){for(const [id,l] of loanStore){let v=c[id]?.[field];i
 function selectOption(i){
   let c=currentOptions[i];if(!c)return;selected=c;let r=firstMember(c),cards="",total=0,share=null;
   for(const [id,l] of loanStore){let amt=c[id]?.balance||0;total+=amt;if(share===null&&c[id])share=c[id].shareValue;cards+=`<div class="balance"><b>${l.name.toUpperCase()}</b><div class="amt">${money(amt)}</div></div>`}
-  cards+=`<div class="balance"><b>SHARE VALUE</b><div class="amt">${money(share||0)}</div></div><div class="balance"><b>TOTAL LOAN</b><div class="amt">${money(total)}</div></div>`;
+  const showShare=document.querySelector('input[name="shareMode"]:checked')?.value!=="no";
+  if(showShare)cards+=`<div class="balance"><b>SHARE VALUE</b><div class="amt">${money(share||0)}</div></div>`;
+  cards+=`<div class="balance"><b>TOTAL LOAN</b><div class="amt">${money(total)}</div></div>`;
+  const accounts=[];for(const [id,l] of loanStore)if(c[id]?.accountNo)accounts.push(`${l.name}: ${c[id].accountNo}`);
   let full=document.querySelector('input[name="infoMode"]:checked').value==="full",info="";
   if(full){
     const vals=[["AADHAAR NO",bestInfo(c,"aadhaar")],["MOBILE / PHONE",bestInfo(c,"mobile")],["GENDER",bestInfo(c,"gender")],["DOB",bestInfo(c,"dob")]];
     info='<div class="infogrid">'+vals.filter(x=>x[1]).map(x=>`<div class="info"><b>${x[0]}</b>${x[1]}</div>`).join("")+"</div>";
   }
   let box=document.getElementById("results");box.classList.remove("hidden");
-  box.innerHTML=`<div class="result"><h3>${r.rawName}</h3><div class="balancegrid">${cards}</div>${info}</div>`
+  box.innerHTML=`<div class="result"><h3>${r.rawName}</h3>${accounts.length?`<div class="accountline"><b>A/c:</b> ${accounts.join(" • ")}</div>`:""}<div class="balancegrid">${cards}</div>${info}</div>`
 }
 function handleCommand(raw){
   let q=clean(raw);if(!q)return;
@@ -496,6 +555,16 @@ function forceNewSearch(raw){
 document.getElementById("searchBtn").onclick=()=>forceNewSearch(document.getElementById("q").value);
 document.getElementById("q").addEventListener("keydown",e=>{if(e.key==="Enter")forceNewSearch(e.target.value)});
 document.getElementById("nextBtn").onclick=()=>handleCommand("NEXT");
+function updateSearchTypeUI(){
+  const type=activeSearchType(),q=document.getElementById("q"),nameModes=document.getElementById("nameSearchModes"),nameHelp=document.getElementById("nameSearchHelp");
+  const isName=type==="name";nameModes.style.display=isName?"flex":"none";nameHelp.style.display=isName?"block":"none";
+  q.inputMode=type==="name"?"text":"numeric";
+  q.placeholder=type==="account"?"1324 or 130700103100203":type==="amount"?"24000":"Baljeet Singh / Ram Singh / Next Gurjiwan Singh";
+  q.value="";currentOptions=[];selected=null;document.getElementById("results").classList.add("hidden");q.focus();
+}
+for(const el of document.querySelectorAll('input[name="searchType"]'))el.addEventListener("change",updateSearchTypeUI);
+for(const el of document.querySelectorAll('input[name="shareMode"]'))el.addEventListener("change",()=>{if(selected){const i=currentOptions.indexOf(selected);if(i>=0)selectOption(i)}});
+updateSearchTypeUI();
 
 let voiceActive=false,rec=null;
 function voiceUI(){document.getElementById("voiceBtn").textContent=voiceActive?"⏹️ Stop Voice":"🎙️ Start Voice";document.getElementById("voiceStatus").textContent=voiceActive?"Voice: Listening…":"Voice: Off"}
@@ -505,7 +574,7 @@ function startVoice(){const SR=window.SpeechRecognition||window.webkitSpeechReco
  rec.onend=()=>{rec=null;if(voiceActive)setTimeout(startVoice,900)};rec.onerror=e=>{};try{rec.start()}catch(e){rec=null}}
 document.getElementById("voiceBtn").onclick=()=>{voiceActive=!voiceActive;voiceUI();if(voiceActive)startVoice();else if(rec){try{rec.stop()}catch(e){}rec=null}};
 if("serviceWorker"in navigator){
-      navigator.serviceWorker.register("sw.js?v=9").then(r=>r.update()).catch(()=>{});
+      navigator.serviceWorker.register("sw.js?v=11").then(r=>r.update()).catch(()=>{});
     }
 </script>
 </body>
