@@ -574,7 +574,7 @@ function startVoice(){const SR=window.SpeechRecognition||window.webkitSpeechReco
  rec.onend=()=>{rec=null;if(voiceActive)setTimeout(startVoice,900)};rec.onerror=e=>{};try{rec.start()}catch(e){rec=null}}
 document.getElementById("voiceBtn").onclick=()=>{voiceActive=!voiceActive;voiceUI();if(voiceActive)startVoice();else if(rec){try{rec.stop()}catch(e){}rec=null}};
 if("serviceWorker"in navigator){
-      navigator.serviceWorker.register("sw.js?v=11").then(r=>r.update()).catch(()=>{});
+      navigator.serviceWorker.register("sw.js?v=12",{updateViaCache:"none"}).then(r=>r.update()).catch(()=>{});
     }
 </script>
 </body>
